@@ -24,20 +24,19 @@
 def getFlows(methodName: String) : Unit = {
     val candidateFuncs = cpg.method.name(methodName)
         .caller
-        .l
         .filter(func => {
-            val src = func.start.parameter
-            val sink = func.start.methodReturn
+            val src = func.parameter
+            val sink = func.methodReturn
             sink.reachableBy(src)
         }.size > 0)
-        .start
         .name
         .l
     for (f <- candidateFuncs) {
-        val src = cpg.call.name(f)
-        val sink = cpg.call.name("memcpy").argument
+        def src = cpg.call.name(f)
+        def sink = cpg.call.name("memcpy").argument(3)
         if (src.size > 0) {
-            if (sink.reachableBy(src).size > 0) {
+            def flow = sink.reachableBy(src)
+            if (flow.size > 0) {
                 print(sink.reachableByFlows(src).p)
             }
             else {
